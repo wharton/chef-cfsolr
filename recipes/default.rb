@@ -46,7 +46,7 @@ execute "cf901_solr_installer" do
   creates "#{node['cfsolr']['install_path']}/Adobe_ColdFusion_9_Solr_Service_InstallLog.log"
   action :run
   user "root"
-  cwd "#{Chef::Config[:file_cache_path]}"
+  cwd Chef::Config[:file_cache_path]
 end
 
 # Allow Jetty to accept connections from other hosts
