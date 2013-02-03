@@ -55,7 +55,7 @@ Please use standard Github issues/pull requests and if possible, in combination 
 
 ## License and Author
 
-Author:: Nathan Mische (<nmische@wharton.upenn.edu), Brian Flad (<bflad@wharton.upenn.edu>)
+Author:: Nathan Mische (<nmische@wharton.upenn.edu>), Brian Flad (<bflad@wharton.upenn.edu>)
 
 Copyright:: 2011-2013
 
