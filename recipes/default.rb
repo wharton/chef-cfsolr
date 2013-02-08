@@ -2,7 +2,7 @@
 # Cookbook Name:: cfsolr
 # Recipe:: default
 #
-# Copyright 2011, Nathan Mische
+# Copyright 2011-2013, Nathan Mische, Brian Flad
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,61 +17,59 @@
 # limitations under the License.
 #
 
-# Download Apache SOLR Standalone Installer for ColdFusion 9.0.1 (http://www.adobe.com/support/coldfusion/downloads.html#cf901proddl)
-remote_file "#{Chef::Config[:file_cache_path]}/ColdFusion_901_Solr_WWEJ_linux.bin" do
-  source "http://download.macromedia.com/pub/coldfusion/updates/901/ColdFusion_901_Solr_WWEJ_linux.bin"
-  action :create_if_missing
-  mode "0744"
-  owner "root"
-  group "root"
-end
+cfsolr_version = Chef::Version.new(node["cfsolr"]["version"])
 
 # Set Java home
 if node.recipe?("java")    
-  node["cfsolr"]["java_home"] = "/usr/lib/jvm/default-java"
+  node.set["cfsolr"]["java_home"] = node["java"]["java_home"]
+end
+
+# Packages for ColdFusion 10 Solr
+if cfsolr_version.major == 10
+  package "unzip"
+end
+
+# Download Apache Solr Standalone Installer for ColdFusion
+remote_file "#{Chef::Config[:file_cache_path]}/cfsolr-#{cfsolr_version}.bin" do
+  source   node["cfsolr"]["url"]
+  checksum node["cfsolr"]["checksum"]
+  mode     "0744"
+  action   :create_if_missing
 end
 
 # Template the installation input file
-template "#{Chef::Config[:file_cache_path]}/cf901-solr-installer.input" do
-  source "cf901-solr-installer.input.erb"
+template "#{Chef::Config[:file_cache_path]}/cfsolr-#{cfsolr_version.major}-installer.input" do
+  source "cfsolr-#{cfsolr_version.major}-installer.input.erb"
   mode "0644"
   owner "root"
   group "root"
-  not_if { File.exists?("#{node['cfsolr']['install_path']}/Adobe_ColdFusion_9_Solr_Service_InstallLog.log") }
 end
 
 # Run the installer
-execute "cf901_solr_installer" do
-  command "./ColdFusion_901_Solr_WWEJ_linux.bin < cf901-solr-installer.input"
-  creates "#{node['cfsolr']['install_path']}/Adobe_ColdFusion_9_Solr_Service_InstallLog.log"
-  action :run
-  user "root"
+execute "cfsolr_#{cfsolr_version}_installer" do
   cwd Chef::Config[:file_cache_path]
+  command "./cfsolr-#{cfsolr_version}.bin < cfsolr-#{cfsolr_version.major}-installer.input"
+  creates node['cfsolr']['install_path']
+  action :run
 end
 
-# Allow Jetty to accept connections from other hosts
-template "#{node['cfsolr']['install_path']}/etc/jetty.xml" do
-  source "jetty.xml.erb"
-  mode "0755"
-  owner "nobody"
-  group "bin"
-end
-
-# Fix init script for Ubuntu
+# Init script
 template "#{node['cfsolr']['install_path']}/cfsolr" do
   source "cfsolr.erb"
   mode "0755"
-  owner "nobody"
-  group "bin"
 end
 
 # Link the init script
-execute "cf_init" do 
+execute "symlink_cfsolr_init" do
   command "ln -sf #{node['cfsolr']['install_path']}/cfsolr /etc/init.d/cfsolr"
   creates "/etc/init.d/cfsolr"
-  action :run
-  user "root"
-  cwd "/tmp"
+end
+
+# Jetty configuration
+template "#{node['cfsolr']['install_path']}/etc/jetty.xml" do
+  source "jetty.xml.erb"
+  mode "0644"
+  notifies :restart, "service[cfsolr]", :delayed
 end
 
 # Set up cfsolr as a service

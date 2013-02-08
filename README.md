@@ -8,6 +8,8 @@ Installs/Configures Apache Solr standalone for Adobe ColdFusion.
 
 ### Platforms
 
+* CentOS 6.3
+* RHEL 6.3
 * Ubuntu 12.04
 
 ## Attributes
@@ -16,19 +18,48 @@ These attributes are under the `node['cfsolr']` namespace.
 
 Attribute | Description | Type | Default
 ----------|-------------|------|--------
+checksum | ColdFusion Solr download checksum | String | see attributes/default.rb
 install_path | Solr installation path | String | /opt/coldfusionsolr
 java_home | JVM for usage | String | `#{node['cfsolr']['install_path']}/jre`
 java_max_heap | JVM maximum heap memory | String | 256m
+url | ColdFusion Solr download URL | String | see attributes/default.rb
+version | ColdFusion Solr version | String | 10.0.0
+
+### Replication Attributes
+
+These attributes are under the `node['cfsolr']['master']` namespace.
+
+Attribute | Description | Type | Default
+----------|-------------|------|--------
+enabled | Node is master server | Boolean | true
+hostname | Hostname of master server | String | `node['fqdn']`
+
+These attributes are under the `node['cfsolr']['slave']` namespace.
+
+Attribute | Description | Type | Default
+----------|-------------|------|--------
+pollInterval | Solr poll interval | String | 00:00:60
 
 ## Recipes
 
 * `recipe[cfsolr]` - Installs/configures Apache Solr standalone for Adobe ColdFusion
+* `recipe[cfsolr::replication]` - Simple replication configuration for ColdFusion Solr servers
 
 ## Usage
 
 ### Solr Standalone Server Installation
 
 * Add `recipe[cfsolr]` to your node's run list
+
+### Simple Solr Replication Server Setup
+
+* On master nodes:
+  * Add `recipe[cfsolr]` and `recipe[cfsolr::replication]` to run list
+* On slave nodes:
+  * Add `recipe[cfsolr]` and `recipe[cfsolr::replication]` to run list
+  * Set `node['cfsolr']['master']['enable']` to false
+  * Set `node['cfsolr']['master']['hostname']` to FQDN of master node
+  * Adjust `node['cfsolr']['slave']` attributes as necessary
 
 ## Testing and Development
 
@@ -38,11 +69,11 @@ Here's how you can quickly get testing or developing against the cookbook thanks
     git clone git://github.com/wharton/chef-cfsolr.git
     cd chef-stash
     bundle install
-    bundle exec vagrant up
+    bundle exec vagrant up BOX # BOX being centos6 or ubuntu1204
 
 The running ColdFusion Solr server is accessible from the host machine:
 
-* Web UI: http://33.33.33.10:8983/
+* Web UI: http://33.33.33.10:8983/solr/admin/cores?action=status
 
 You can then SSH into the running VM using the `vagrant ssh` command.
 The VM can easily be stopped and deleted with the `vagrant destroy`

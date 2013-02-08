@@ -15,6 +15,7 @@ Vagrant::Config.run do |config|
     dist_config.vm.box       = 'opscode-centos-6.3'
     dist_config.vm.box_url   = 'https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.3_chef-10.18.2.box'
     
+    dist_config.vm.customize ["modifyvm", :id, "--cpus", 2]
     dist_config.vm.customize ["modifyvm", :id, "--memory", 1024]
     dist_config.vm.network :hostonly, '33.33.33.10'
 
@@ -25,10 +26,16 @@ Vagrant::Config.run do |config|
       chef.log_level         = :debug
 
       chef.json = {
-        
+        "java" => {
+          "install_flavor" => "oracle",
+          "oracle" => {
+            "accept_oracle_download_terms" => true
+          }
+        }
       }
 
       chef.run_list = %w{
+        recipe[java]
         recipe[cfsolr]
       }
     end
@@ -39,6 +46,7 @@ Vagrant::Config.run do |config|
     dist_config.vm.box       = 'opscode-ubuntu-12.04'
     dist_config.vm.box_url   = 'https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_chef-10.18.2.box'
     
+    dist_config.vm.customize ["modifyvm", :id, "--cpus", 2]
     dist_config.vm.customize ["modifyvm", :id, "--memory", 1024]
     dist_config.vm.network :hostonly, '33.33.33.10'
 
@@ -49,10 +57,17 @@ Vagrant::Config.run do |config|
       chef.log_level         = :debug
 
       chef.json = {
-        
+        "java" => {
+          "install_flavor" => "oracle",
+          "java_home" => "/usr/lib/jvm/java-6-oracle",
+          "oracle" => {
+            "accept_oracle_download_terms" => true
+          }
+        }
       }
 
       chef.run_list = %w{
+        recipe[java]
         recipe[cfsolr]
       }
     end

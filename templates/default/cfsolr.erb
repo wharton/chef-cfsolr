@@ -6,8 +6,8 @@
 
 PATH=/usr/xpg4/bin:/bin:/sbin:/usr/bin:/usr/sbin:$PATH
 RUNTIME_USER=nobody
-SOLR="/opt/coldfusionsolr"
-SOLR_JVM="/usr/lib/jvm/default-java"
+SOLR="<%= node["cfsolr"]["install_path"] %>"
+SOLR_JVM="<%= node["cfsolr"]["java_home"] %>"
 SOLRPORT=8983
 NETSTATCMD="netstat"
 
