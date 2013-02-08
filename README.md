@@ -67,7 +67,7 @@ Here's how you can quickly get testing or developing against the cookbook thanks
 
     gem install bundler --no-ri --no-rdoc
     git clone git://github.com/wharton/chef-cfsolr.git
-    cd chef-stash
+    cd chef-cfsolr
     bundle install
     bundle exec vagrant up BOX # BOX being centos6 or ubuntu1204
 
