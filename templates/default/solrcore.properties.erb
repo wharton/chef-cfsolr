@@ -1,4 +1,5 @@
 master.enable=<%= node["cfsolr"]["master"]["enable"] ? "true" : "false" %>
 master.hostname=<%= node["cfsolr"]["master"]["hostname"] %>
+master.port=<%= node["cfsolr"]["master"]["port"] %>
 slave.enable=<%= node["cfsolr"]["master"]["enable"] ? "false" : "true" %>
 slave.pollInterval=<%= node["cfsolr"]["slave"]["pollInterval"] %>

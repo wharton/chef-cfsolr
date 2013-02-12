@@ -35,6 +35,7 @@ Attribute | Description | Type | Default
 ----------|-------------|------|--------
 enabled | Node is master server | Boolean | true
 hostname | Hostname of master server | String | `node['fqdn']`
+port | Port of master server | Fixnum | `node['cfsolr']['solrport']`
 
 These attributes are under the `node['cfsolr']['slave']` namespace.
 

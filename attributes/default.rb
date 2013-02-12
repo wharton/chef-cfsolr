@@ -33,4 +33,5 @@ default["cfsolr"]["java_home"] = "#{node['cfsolr']['install_path']}/jre"
 # Replication
 default["cfsolr"]["master"]["enable"] = true
 default["cfsolr"]["master"]["hostname"] = node["fqdn"]
+default["cfsolr"]["master"]["port"] = node["cfsolr"]["solrport"]
 default["cfsolr"]["slave"]["pollInterval"] = "00:00:60"

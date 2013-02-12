@@ -761,7 +761,7 @@
    <lst name="slave">
       <str name="enable">${slave.enable:false}</str>
       <str name="replicateAfter">startup</str>
-      <str name="masterUrl">http://${master.hostname}:8983/solr/${solr.core.name}/replication</str>
+      <str name="masterUrl">http://${master.hostname}:${master.port}/solr/${solr.core.name}/replication</str>
       <str name="pollInterval">${slave.pollInterval}</str>
    </lst>
   </requestHandler>

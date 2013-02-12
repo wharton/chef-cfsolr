@@ -1,3 +1,7 @@
+## v0.3.0
+
+* Added `node['cfsolr']['master']['port']` attribute and configuration
+
 ## v0.2.0
 
 * Corrected default ColdFusion 10 Solr port and JVM Xmx
