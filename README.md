@@ -21,7 +21,9 @@ Attribute | Description | Type | Default
 checksum | ColdFusion Solr download checksum | String | see attributes/default.rb
 install_path | Solr installation path | String | /opt/coldfusionsolr
 java_home | JVM for usage | String | `#{node['cfsolr']['install_path']}/jre`
-java_max_heap | JVM maximum heap memory | String | 256m
+java_max_heap | JVM maximum heap memory | String | 256m (CF9) or 512m (CF10)
+solrport | Solr port | Fixnum | 8983 (CF9) or 8985 (CF10)
+stopport | Solr stop port | Fixnum | 8079 (CF9) or 8077 (CF10)
 url | ColdFusion Solr download URL | String | see attributes/default.rb
 version | ColdFusion Solr version | String | 10.0.0
 

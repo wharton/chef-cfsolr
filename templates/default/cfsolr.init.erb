@@ -1,18 +1,22 @@
 #!/bin/sh
 
 # chkconfig: 345 90 14
+<% if @version >= 10 -%>
+# description: starts the Jetty(Admin Component) service for ColdFusion. Starting this also starts Solr search service if it is installed.
+<% else -%>
 # description: starts the Solr search service for ColdFusion 
-
+<% end -%>
 
 PATH=/usr/xpg4/bin:/bin:/sbin:/usr/bin:/usr/sbin:$PATH
 RUNTIME_USER=nobody
 SOLR="<%= node["cfsolr"]["install_path"] %>"
 SOLR_JVM="<%= node["cfsolr"]["java_home"] %>"
-SOLRPORT=8983
+SOLRPORT=<%= node["cfsolr"]["solrport"] %>
+STOPPORT=<%= node["cfsolr"]["stopport"] %>
 NETSTATCMD="netstat"
 
 # JVM Args
-JVMARGS="-XX:+AggressiveOpts -XX:+ScavengeBeforeFullGC -XX:-UseParallelGC -Xmx<%= node["cfsolr"]["java_max_heap"] %> -Dsolr.solr.home=multicore -DSTOP.PORT=8079 -DSTOP.KEY=cfsolrstop"
+JVMARGS="-XX:+AggressiveOpts -XX:+ScavengeBeforeFullGC -XX:-UseParallelGC -Xmx<%= node["cfsolr"]["java_max_heap"] %> -Dsolr.solr.home=multicore -DSTOP.PORT=$STOPPORT -DSTOP.KEY=cfsolrstop"
 
 ID=`id -u`
 RTUSERID=`id -u $RUNTIME_USER`
@@ -23,7 +27,7 @@ if [ $ID -eq $RTUSERID ]; then
 fi
 
 if [ ! $ID -eq 0 -a ! $USEROK -eq 1 ]; then
-	echo "You must be root to start ColdFusionSearch service."
+	echo "You must be root to start <%= @version >= 10 ? "ColdFusion Jetty" : "ColdFusionSolrSearch" %> service."
 	exit 1
 fi
 
@@ -42,15 +46,19 @@ solrrunning()
 # Run the solr admin start script
 solrstart()
 {
+        <% if @version >= 10 -%>
+        echo "You are starting Admin Component for ColdFusion. Starting this service also starts Solr search service (if installed)."
+
+        <% end -%>
         solrrunning
         
         if [ "$IS_RUNNING" = "true" ]; then
-           echo "ColdFusion Solr is already running or the port is not free"
+           echo "ColdFusion <%= @version >= 10 ? "Jetty service" : "Solr" %> is already running or the port is not free"
            echo exiting
            exit 2
         fi
 
-        echo "Starting ColdFusion Solr Server..."
+        echo "Starting ColdFusion <%= @version >= 10 ? "Jetty" : "Solr" %> Server..."
 	if [ -x $SOLR/start.jar ]
 	then
 		eval $SOLRSTART &
@@ -58,7 +66,7 @@ solrstart()
                 echo "Could not locate start.jar. Exiting.."
                 exit 2
 	fi
-        echo "ColdFusion Solr Server is starting up and will be available shortly."
+        echo "ColdFusion <%= @version >= 10 ? "Jetty" : "Solr" %> Server is starting up and will be available shortly."
         
 }
 
@@ -68,9 +76,9 @@ solrstop()
 	solrrunning
 
         if [ "$IS_RUNNING" = "false" ]; then
-           echo "ColdFusion Solr Service does not appear to be running."
+           echo "ColdFusion <%= @version >= 10 ? "Jetty" : "Solr" %> Service does not appear to be running."
    	else
-	   echo "Stopping ColdFusion Solr Server, please wait"
+	   echo "Stopping ColdFusion <%= @version >= 10 ? "Jetty" : "Solr" %> Server, please wait"
 	   if [ -x $SOLR/start.jar ]
 	   then
 		eval $SOLRSTOP 
@@ -79,7 +87,7 @@ solrstop()
                 exit 2
 	   fi
 	   sleep 2
-	   echo "ColdFusion Solr Server has been stopped"
+	   echo "ColdFusion <%= @version >= 10 ? "Jetty" : "Solr" %> Server has been stopped"
         fi
 
 }
@@ -158,7 +166,7 @@ case $ARG in
 	;;
 
 	restart)
-		echo "Restarting ColdFusionSolrSearch services..."
+		echo "Restarting <%= @version >= 10 ? "ColdFusion Jetty" : "ColdFusionSolrSearch" %> services..."
 		solrstop
 		solrstart
 	;;

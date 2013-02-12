@@ -4,7 +4,7 @@ maintainer_email "chef-admins@wharton.upenn.edu"
 license          "Apache 2.0"
 description      "Installs Apache Solr Standalone for ColdFusion"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.1.0"
+version          "0.1.1"
 
 recipe "cfsolr", "Installs Apache Solr Standalone for ColdFusion"
 recipe "cfsolr::replication", "Configures simple replication for new Solr cores"

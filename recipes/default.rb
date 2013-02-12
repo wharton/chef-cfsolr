@@ -19,6 +19,13 @@
 
 cfsolr_version = Chef::Version.new(node["cfsolr"]["version"])
 
+# init script detection
+if cfsolr_version.major == 9
+  init_script = "cfsolr"
+else
+  init_script = "cfjetty"
+end
+
 # Set Java home
 if node.recipe?("java")    
   node.set["cfsolr"]["java_home"] = node["java"]["java_home"]
@@ -49,19 +56,22 @@ end
 execute "cfsolr_#{cfsolr_version}_installer" do
   cwd Chef::Config[:file_cache_path]
   command "./cfsolr-#{cfsolr_version}.bin < cfsolr-#{cfsolr_version.major}-installer.input"
-  creates node['cfsolr']['install_path']
+  creates "#{node['cfsolr']['install_path']}/#{init_script}"
   action :run
 end
 
 # Init script
-template "#{node['cfsolr']['install_path']}/cfsolr" do
-  source "cfsolr.erb"
+template "#{node['cfsolr']['install_path']}/#{init_script}" do
+  source "cfsolr.init.erb"
   mode "0755"
+  variables(
+    :version => cfsolr_version.major
+  )
 end
 
 # Link the init script
 execute "symlink_cfsolr_init" do
-  command "ln -sf #{node['cfsolr']['install_path']}/cfsolr /etc/init.d/cfsolr"
+  command "ln -sf #{node['cfsolr']['install_path']}/#{init_script} /etc/init.d/cfsolr"
   creates "/etc/init.d/cfsolr"
 end
 
